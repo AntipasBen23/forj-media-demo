@@ -1,4 +1,3 @@
-// src/app/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -31,48 +30,33 @@ export default function HomePage() {
     setResult(null);
 
     try {
-      // TODO: wire this up to /api/generate when backend is ready
-      // const res = await fetch("/api/generate", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ rawInput, product, audience, tone }),
-      // });
-      // if (!res.ok) throw new Error("Generation failed");
-      // const data = await res.json();
-      // setResult(data);
+      const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-      // Temporary fake output for demo before backend:
-      const demoHooks = [
-        "From random notes to revenue: what changed for us on LinkedIn.",
-        "The moment I stopped treating LinkedIn like a resume and started treating it like a lab.",
-        "Why your ‘thought leadership’ isn’t landing (and what to ship instead).",
-      ];
+      if (!API_BASE) {
+        throw new Error("API base URL is missing in environment variables.");
+      }
 
-      const demoOutlines = [
-        "Hook → short founder story about struggling with consistency → what changed → 3 takeaways → soft CTA.",
-        "Hook → brutal truth about noisy feeds → breakdown of signal vs noise → example post → invite to connect.",
-      ];
-
-      const demoPosts = [
-        `Everyone talks about “posting consistently” on LinkedIn.
-
-What nobody tells you: consistency is impossible if your content pipeline depends on you being in the perfect headspace.
-
-That’s why I stopped trying to write from scratch and started dumping messy notes, half-ideas, and client conversations into a simple intake system.
-
-Once per week, that chaos turns into hooks, posts, and stories I can actually ship.
-
-If your content depends on willpower, it will die the moment things get busy.`,
-      ];
-
-      setResult({
-        hooks: demoHooks,
-        postOutlines: demoOutlines,
-        fullPosts: demoPosts,
+      const res = await fetch(`${API_BASE}/api/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rawInput,
+          product,
+          audience,
+          tone,
+        }),
       });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || "Generation failed");
+      }
+
+      const data: GeneratedContent = await res.json();
+      setResult(data);
     } catch (err) {
+      console.error("API error:", err);
       setError("Something went wrong while generating content.");
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -126,7 +110,10 @@ If your content depends on willpower, it will die the moment things get busy.`,
             rant. The engine turns it into structured content.
           </p>
 
-          <form onSubmit={handleGenerate} className="mt-4 flex flex-1 flex-col gap-4">
+          <form
+            onSubmit={handleGenerate}
+            className="mt-4 flex flex-1 flex-col gap-4"
+          >
             <label className="flex-1 text-sm">
               <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-forj-muted">
                 Raw notes / transcript
