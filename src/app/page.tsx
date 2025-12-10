@@ -32,30 +32,17 @@ export default function HomePage() {
     try {
       const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-      if (!API_BASE) {
-        throw new Error("API base URL is missing in environment variables.");
-      }
-
       const res = await fetch(`${API_BASE}/api/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          rawInput,
-          product,
-          audience,
-          tone,
-        }),
+        body: JSON.stringify({ rawInput, product, audience, tone }),
       });
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || "Generation failed");
-      }
+      if (!res.ok) throw new Error("Generation failed");
 
       const data: GeneratedContent = await res.json();
       setResult(data);
     } catch (err) {
-      console.error("API error:", err);
       setError("Something went wrong while generating content.");
     } finally {
       setLoading(false);
@@ -63,7 +50,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-8 py-4">
+    <div className="flex flex-col gap-8 py-4">
       {/* Header / Hero */}
       <header className="space-y-4">
         <span className="inline-flex items-center gap-2 rounded-full border border-forj-border bg-forj-card px-3 py-1 text-xs font-medium uppercase tracking-wide text-forj-muted">
@@ -76,12 +63,11 @@ export default function HomePage() {
               Founder Intake Engine
             </h1>
             <p className="max-w-2xl text-sm text-forj-muted md:text-base">
-              Turn a founder&apos;s messy notes, rambles, and brain dumps into{" "}
+              Turn a founder&apos;s messy notes into{" "}
               <span className="text-forj-accent">
-                on-brand LinkedIn hooks, outlines, and posts
+                hooks, outlines, and full posts
               </span>{" "}
-              in seconds. Built as a prototype of how Forj could scale
-              founder-led content without adding more meetings.
+              in seconds.
             </p>
           </div>
 
@@ -89,38 +75,28 @@ export default function HomePage() {
             <p className="font-medium text-forj-text">
               What this demo shows Matt
             </p>
-            <p>
-              • Intake any rough thoughts once{" "}
-              <br />
-              • Ship a week of content from it
-            </p>
+            <p>• Intake rough thoughts once<br/>• Ship a week of content</p>
           </div>
         </div>
       </header>
 
       {/* Main grid */}
-      <div className="grid flex-1 gap-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-        {/* Left: Input */}
-        <section className="flex flex-col rounded-2xl border border-forj-border bg-forj-card p-4 md:p-6">
+      <div className="grid gap-6 md:grid-cols-[1fr_1fr]">
+        
+        {/* LEFT SIDE — Input panel */}
+        <section className="flex flex-col rounded-2xl border border-forj-border bg-forj-card p-6">
           <h2 className="text-sm font-medium text-forj-muted">
             1. Drop in founder brain
           </h2>
-          <p className="mt-1 text-xs text-forj-muted">
-            Paste raw notes, a voice memo transcript, call notes, or a messy
-            rant. The engine turns it into structured content.
-          </p>
 
-          <form
-            onSubmit={handleGenerate}
-            className="mt-4 flex flex-col gap-4"
-          >
-            <label className="flex-1 text-sm">
+          <form onSubmit={handleGenerate} className="flex flex-col gap-4 mt-4">
+            <label className="text-sm">
               <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-forj-muted">
                 Raw notes / transcript
               </span>
               <textarea
-                className="min-h-[180px] w-full resize-vertical rounded-xl border border-forj-border bg-black/40 px-3 py-2 text-sm text-forj-text outline-none ring-forj-accent/40 focus:ring-2"
-                placeholder="Example: Scribbles after a sales call, problems founders keep mentioning, your own rant about LinkedIn, etc..."
+                className="min-h-[180px] w-full rounded-xl border border-forj-border bg-black/40 px-3 py-2 text-sm text-forj-text focus:ring-2 ring-forj-accent/40 outline-none"
+                placeholder="Example: call notes, rants, problems founders keep repeating..."
                 value={rawInput}
                 onChange={(e) => setRawInput(e.target.value)}
               />
@@ -132,8 +108,8 @@ export default function HomePage() {
                   Product
                 </span>
                 <input
-                  className="w-full rounded-lg border border-forj-border bg-black/40 px-3 py-2 text-xs outline-none ring-forj-accent/40 focus:ring-2"
-                  placeholder="e.g. LinkedIn content agency for B2B SaaS"
+                  className="w-full rounded-lg border border-forj-border bg-black/40 px-3 py-2 text-xs"
+                  placeholder="e.g. LinkedIn content agency"
                   value={product}
                   onChange={(e) => setProduct(e.target.value)}
                 />
@@ -141,11 +117,11 @@ export default function HomePage() {
 
               <label className="text-xs">
                 <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-forj-muted">
-                  Target audience
+                  Audience
                 </span>
                 <input
-                  className="w-full rounded-lg border border-forj-border bg-black/40 px-3 py-2 text-xs outline-none ring-forj-accent/40 focus:ring-2"
-                  placeholder="e.g. Seed–Series B SaaS founders"
+                  className="w-full rounded-lg border border-forj-border bg-black/40 px-3 py-2 text-xs"
+                  placeholder="e.g. SaaS founders"
                   value={audience}
                   onChange={(e) => setAudience(e.target.value)}
                 />
@@ -156,7 +132,7 @@ export default function HomePage() {
                   Tone
                 </span>
                 <select
-                  className="w-full rounded-lg border border-forj-border bg-black/40 px-3 py-2 text-xs outline-none ring-forj-accent/40 focus:ring-2"
+                  className="w-full rounded-lg border border-forj-border bg-black/40 px-3 py-2 text-xs"
                   value={tone}
                   onChange={(e) => setTone(e.target.value)}
                 >
@@ -168,124 +144,105 @@ export default function HomePage() {
               </label>
             </div>
 
-            {error && (
-              <p className="text-xs font-medium text-red-400">{error}</p>
-            )}
+            {error && <p className="text-xs font-medium text-red-400">{error}</p>}
 
-            <div className="mt-2 flex items-center justify-between gap-3">
+            {/* ALWAYS VISIBLE BUTTON */}
+            <div className="flex items-center justify-between mt-2">
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center justify-center rounded-full bg-forj-accent px-4 py-2 text-sm font-medium text-black transition hover:bg-forj-accentSoft disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-full bg-white text-black px-5 py-2 text-sm font-semibold shadow-[0_0_10px_rgba(255,255,255,0.5)] hover:bg-gray-200 transition disabled:opacity-60 cursor-pointer"
+
+
               >
                 {loading ? "Generating..." : "Generate content"}
               </button>
-              
+
+              <p className="text-[11px] text-forj-muted">
+                Backend connected to /api/generate
+              </p>
             </div>
           </form>
         </section>
 
-        {/* Right: Output */}
-        <section className="flex flex-col rounded-2xl border border-forj-border bg-forj-card p-4 md:p-6">
+        {/* RIGHT SIDE — Results */}
+        <section className="flex flex-col rounded-2xl border border-forj-border bg-forj-card p-6">
           <h2 className="text-sm font-medium text-forj-muted">
             2. Forj-style content output
           </h2>
-          <p className="mt-1 text-xs text-forj-muted">
-            This is what a founder or Forj writer would see seconds after
-            dropping in their notes.
-          </p>
 
           {!result && !loading && (
-            <div className="mt-6 rounded-xl border border-dashed border-forj-border/80 bg-black/20 px-4 py-6 text-xs text-forj-muted">
-              <p>Hit “Generate content” to see hooks, outlines, and posts.</p>
-              <p className="mt-2">
-                When wired to a backend, this area becomes the live content
-                workspace Forj can plug into client onboarding or a portal.
-              </p>
+            <div className="mt-6 rounded-xl border border-dashed border-forj-border/60 bg-black/20 px-4 py-6 text-xs text-forj-muted">
+              Hit “Generate content” to see hooks, outlines, and full posts.
             </div>
           )}
 
           {result && (
             <div className="mt-4 flex-1 space-y-5 overflow-y-auto pr-1 text-sm">
-              {/* Hooks */}
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-forj-muted">
-                  Hooks
-                </h3>
-                <div className="mt-2 space-y-2">
-                  {result.hooks.map((hook, idx) => (
-                    <ContentCard key={idx} label={`Hook ${idx + 1}`} text={hook} />
-                  ))}
-                </div>
-              </div>
 
-              {/* Outlines */}
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-forj-muted">
-                  Post outlines
-                </h3>
-                <div className="mt-2 space-y-2">
-                  {result.postOutlines.map((outline, idx) => (
-                    <ContentCard
-                      key={idx}
-                      label={`Outline ${idx + 1}`}
-                      text={outline}
-                    />
-                  ))}
-                </div>
-              </div>
+              <ContentBlock title="Hooks" items={result.hooks} />
+              <ContentBlock title="Post outlines" items={result.postOutlines} />
+              <ContentBlock title="Full posts" items={result.fullPosts} multiline />
 
-              {/* Full posts */}
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-forj-muted">
-                  Full posts
-                </h3>
-                <div className="mt-2 space-y-2">
-                  {result.fullPosts.map((post, idx) => (
-                    <ContentCard
-                      key={idx}
-                      label={`Post ${idx + 1}`}
-                      text={post}
-                      multiline
-                    />
-                  ))}
-                </div>
-              </div>
             </div>
           )}
         </section>
+
       </div>
     </div>
   );
 }
 
-type ContentCardProps = {
+function ContentBlock({
+  title,
+  items,
+  multiline,
+}: {
+  title: string;
+  items: string[];
+  multiline?: boolean;
+}) {
+  return (
+    <div>
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-forj-muted">
+        {title}
+      </h3>
+      <div className="mt-2 space-y-2">
+        {items.map((text, idx) => (
+          <ContentCard
+            key={idx}
+            label={`${title.slice(0, -1)} ${idx + 1}`}
+            text={text}
+            multiline={multiline}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ContentCard({
+  label,
+  text,
+  multiline,
+}: {
   label: string;
   text: string;
   multiline?: boolean;
-};
-
-function ContentCard({ label, text, multiline }: ContentCardProps) {
-  function handleCopy() {
-    navigator.clipboard.writeText(text).catch((err) => {
-      console.error("Failed to copy", err);
-    });
-  }
-
+}) {
   return (
     <article className="group rounded-xl border border-forj-border bg-black/30 px-3 py-3 text-xs">
-      <div className="mb-1 flex items-center justify-between gap-2">
-        <span className="text-[11px] font-medium text-forj-muted">
-          {label}
-        </span>
+      <div className="mb-1 flex items-center justify-between">
+        <span className="text-[11px] font-medium text-forj-muted">{label}</span>
         <button
           type="button"
-          onClick={handleCopy}
-          className="rounded-full border border-forj-border bg-transparent px-2 py-0.5 text-[11px] text-forj-muted transition group-hover:border-forj-accent group-hover:text-forj-accent"
+          onClick={() => navigator.clipboard.writeText(text)}
+          className="rounded-full border border-forj-border px-2 py-0.5 text-[11px] group-hover:border-forj-accent group-hover:text-forj-accent"
         >
           Copy
         </button>
       </div>
+
       <p className={multiline ? "whitespace-pre-line" : ""}>{text}</p>
     </article>
   );
