@@ -158,9 +158,7 @@ export default function HomePage() {
                 {loading ? "Generating..." : "Generate content"}
               </button>
 
-              <p className="text-[11px] text-forj-muted">
-                Backend connected to /api/generate
-              </p>
+              
             </div>
           </form>
         </section>
