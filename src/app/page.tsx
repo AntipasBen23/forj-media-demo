@@ -112,7 +112,7 @@ export default function HomePage() {
 
           <form
             onSubmit={handleGenerate}
-            className="mt-4 flex flex-1 flex-col gap-4"
+            className="mt-4 flex flex-col gap-4"
           >
             <label className="flex-1 text-sm">
               <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-forj-muted">
@@ -180,10 +180,7 @@ export default function HomePage() {
               >
                 {loading ? "Generating..." : "Generate content"}
               </button>
-              <p className="text-[11px] text-forj-muted">
-                Prototype only. Backend can plug into a real /api/generate
-                endpoint later.
-              </p>
+              
             </div>
           </form>
         </section>
